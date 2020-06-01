@@ -7,22 +7,12 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Button,
 } from "react-native";
-import { LocalNotification } from "../services/LocalPushController";
 import { ScrollView } from "react-native-gesture-handler";
+import { Button } from "react-native-elements";
 import { MonoText } from "../components/StyledText";
 
-export default function HomeScreen({ route }) {
-  const { name } =
-    route.params == null ? "name" : route.params;
-  const { DOB } =
-    route.params == null ? "name" : route.params;
-
-  const handleButtonPress = () => {
-    LocalNotification();
-  };
-
+export default function AccountScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
@@ -41,45 +31,49 @@ export default function HomeScreen({ route }) {
         </View>
 
         <View style={styles.getStartedContainer}>
-          <Text style={styles.getStartedText}>{name}</Text>
-          <Text style={styles.getStartedText}>{DOB}</Text>
+          <DevelopmentModeNotice />
+
+          <Text style={styles.getStartedText}>
+            Open up the code for this screen:
+          </Text>
+
+          <View
+            style={[
+              styles.codeHighlightContainer,
+              styles.homeScreenFilename,
+            ]}
+          >
+            <MonoText>screens/HomeScreen.js</MonoText>
+          </View>
+
+          <Text style={styles.getStartedText}>
+            Change any of the text, save the file, and your
+            app will automatically reload.
+          </Text>
         </View>
 
-        <View style={{ marginTop: 20 }}>
-          <Button
-            title={"Local Push Notification"}
-            onPress={handleButtonPress}
-          />
-        </View>
-
-        {/* <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
+        <View style={styles.helpContainer}>
+          <TouchableOpacity
+            onPress={handleHelpPress}
+            style={styles.helpLink}
+          >
+            <Text style={styles.helpLinkText}>
+              Help, it didn’t automatically reload!
+            </Text>
           </TouchableOpacity>
-        </View> */}
+        </View>
       </ScrollView>
 
       <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>
-          This is a tab bar. You can edit it in:
-        </Text>
-
-        <View
-          style={[
-            styles.codeHighlightContainer,
-            styles.navigationFilename,
-          ]}
-        >
-          <MonoText style={styles.codeHighlightText}>
-            navigation/BottomTabNavigator.js
-          </MonoText>
+        <View style={styles.button}>
+          <Button title="Logout" type="outline" />
         </View>
       </View>
     </View>
   );
 }
 
-HomeScreen.navigationOptions = {
+AccountScreen.navigationOptions = {
   header: null,
 };
 
@@ -127,6 +121,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  button: {
+    width: 300
   },
   developmentModeText: {
     marginBottom: 20,
