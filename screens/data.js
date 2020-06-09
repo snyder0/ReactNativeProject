@@ -1,22 +1,45 @@
-import PatientData from "../patientData";
+// import PatientData from "../patientData";
 
 let A = 0;
 let B = 0;
 let AB = 0;
 let O = 0;
 
+let bloodTypes = [];
+let PatientData = [];
+
+const getAllPatients = () => {
+  fetch("http://c9c503b00fd1.ngrok.io/api/patients", {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      PatientData = data.data.items;
+    });
+};
+
+fetch("http://c9c503b00fd1.ngrok.io/api/bloodtypes", {
+  method: "GET",
+})
+  .then((response) => response.json())
+  .then((data) => {
+    bloodTypes = data.data;
+  });
+
+getAllPatients();
+
 PatientData.forEach((patient) => {
-  switch (patient.bloodType) {
-    case "A+":
+  switch (patient.bloodTypeId) {
+    case 1:
       A++;
       break;
-    case "B+":
+    case 2:
       B++;
       break;
-    case "AB+":
+    case 3:
       AB++;
       break;
-    case "O+":
+    case 4:
       O++;
       break;
     default:
@@ -25,16 +48,14 @@ PatientData.forEach((patient) => {
 });
 
 const data = {
-  labels: ["January", "February", "March", "April", "May", "June"],
+  labels: ["0-17", "18-39", "40-64", "65+"],
   datasets: [
     {
       data: [
-        Math.random() * 100,
-        Math.random() * 100,
-        Math.random() * 100,
-        Math.random() * 100,
-        Math.random() * 100,
-        Math.random() * 100,
+        10,
+        20,
+        30,
+        40
       ],
       color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
     },
@@ -44,14 +65,10 @@ const data = {
         Math.random() * 100,
         Math.random() * 100,
         Math.random() * 100,
-        Math.random() * 100,
-        Math.random() * 100,
       ],
     },
     {
       data: [
-        Math.random() * 100,
-        Math.random() * 100,
         Math.random() * 100,
         Math.random() * 100,
         Math.random() * 100,
@@ -78,7 +95,6 @@ const contributionData = [
 ];
 
 // Mock data object for Pie Chart
-console.log(A)
 const pieChartData = [
   {
     name: "A+",
@@ -107,7 +123,7 @@ const pieChartData = [
     color: "#3366FF",
     legendFontColor: "#7F7F7F",
     legendFontSize: 15,
-  }
+  },
 ];
 
 // Mock data object for Progress

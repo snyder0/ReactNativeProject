@@ -22,9 +22,12 @@ import {
   SelectItem,
 } from "@ui-kitten/components";
 import ApiService from "../services/ApiService";
+import { createStackNavigator } from "@react-navigation/stack";
+import { PatientInfoScreen } from "./PatientInfoScreen";
+
+const Stack = createStackNavigator();
 
 const filter = (item, query) => {
-  console.log(item)
   item.firstName.toLowerCase().includes(query.toLowerCase());
 };
 
@@ -47,16 +50,41 @@ export default function PatientsScreen({ navigation }) {
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0));
   const displayValue = raceOptions[selectedIndex.row];
 
+  const navigatePatientInfoScreen = (patient) => {
+    navigation.navigate("PatientInfo", patient);
+  };
+
   React.useEffect(() => {
-    fetch("http://3e51fea711d7.ngrok.io/api/patients", {
+    getAllPatients();
+    if (value == null) {
+      setTest(data);
+    }
+  }, []);
+
+  const getAllPatients = () => {
+    fetch("http://c9c503b00fd1.ngrok.io/api/patients", {
       method: "GET",
     })
       .then((response) => response.json())
       .then((data) => {
-        setTest(data.data.items)
-        setData(data.data.items)
+        setTest(data.data.items);
+        setData(data.data.items);
       });
-  }, []);
+  };
+
+  const searchByName = (query) => {
+    let url = "http://c9c503b00fd1.ngrok.io/api/patients";
+    if (query !== "") {
+      url += `?NameSearch=${query}`;
+    }
+    fetch(url, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setTest(data.data.items);
+      })
+  };
 
   const useDatepickerState = (initialDate = null) => {
     const [date, setDate] = React.useState(initialDate);
@@ -65,7 +93,11 @@ export default function PatientsScreen({ navigation }) {
 
   const onChangeText = (query) => {
     setValue(query);
-    setData(data.filter((item) => filter(item, query)));
+    searchByName(query);
+    if (query == " ") {
+      setTest(data);
+    }
+    // setData(data.filter((item) => filter(item, query)));
   };
 
   const onSelect = (index) => {
@@ -74,7 +106,7 @@ export default function PatientsScreen({ navigation }) {
 
   const clearInput = () => {
     setValue("");
-    setData(test);
+    setTest(data);
   };
 
   const toggleOverlay = (item) => {
@@ -83,7 +115,10 @@ export default function PatientsScreen({ navigation }) {
   };
 
   const renderOption = (item, index) => (
-    <AutocompleteItem key={index} title={`${item.firstName} ${item.lastName}`} />
+    <AutocompleteItem
+      key={index}
+      title={`${item.firstName} ${item.lastName}`}
+    />
   );
 
   const renderRaceOption = (title) => <SelectItem title={title} />;
@@ -98,7 +133,7 @@ export default function PatientsScreen({ navigation }) {
     <ListItem
       title={`${item.firstName} ${item.lastName}`}
       description={new Date(item.dateOfBirth).toLocaleDateString()}
-      onPress={() => toggleOverlay(item)}
+      onPress={() => navigatePatientInfoScreen(item)}
     />
   );
 
@@ -113,16 +148,16 @@ export default function PatientsScreen({ navigation }) {
   return (
     <React.Fragment>
       <Autocomplete
-        placeholder="Search for patients"
+        placeholder="Search"
         value={value}
         accessoryRight={renderCloseIcon}
         onChangeText={onChangeText}
         onSelect={onSelect}
         style={styles.search}
       >
-        {test.length > 0 ? test.map(renderOption) : ''}
+        {/* {test.length > 0 ? test.map(renderOption) : ''} */}
       </Autocomplete>
-      <Layout style={styles.filterContainer} level="3">
+      {/* <Layout style={styles.filterContainer} level="3">
         <Datepicker
           min={minDate}
           startView={CalendarViewModes.YEAR}
@@ -148,12 +183,14 @@ export default function PatientsScreen({ navigation }) {
           <SelectItem title="Native Hawaiian or Other Pacific Islander" />
           <SelectItem title="White" />
         </Select>
-      </Layout>
+      </Layout> */}
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <Text style={styles.text} category="h1">
           {`${patient.firstName} ${patient.lastName}`}
         </Text>
-        <Text style={styles.text}>DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}</Text>
+        <Text style={styles.text}>
+          DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}
+        </Text>
         <Text style={styles.text}>Gender: {patient.genderId}</Text>
         <Text style={styles.text}>Race: {patient.raceId}</Text>
         <Text style={styles.text}>Height: {patient.height}</Text>

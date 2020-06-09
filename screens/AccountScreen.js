@@ -5,73 +5,80 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  TouchableOpacity,
 } from "react-native";
+import { List, ListItem, Divider, Button } from "@ui-kitten/components";
 import { ScrollView } from "react-native-gesture-handler";
-import { Button } from "react-native-elements";
 import { MonoText } from "../components/StyledText";
+import { Context } from "../App";
 
-export default function AccountScreen() {
+const data = [
+  {
+    title: "First Name",
+    key: "firstName",
+  },
+  {
+    title: "Last Name",
+    key: "lastName",
+  },
+  {
+    title: "Email",
+    key: "email",
+  },
+  {
+    title: "Phone Number",
+    key: "phoneNumber",
+  },
+];
+
+const AccountScreen = () => {
+  const [user, setUser] = React.useState("");
+  const { setAuth } = React.useContext(Context);
+
+  React.useEffect(() => {
+    fetch("http://c9c503b00fd1.ngrok.io/api/users/1", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUser(data.data);
+      });
+  }, []);
+
+  const renderItemAccessory = ({ key }) => (
+    <Text size="tiny">{user[key] == null ? "N/A" : user[key]}</Text>
+  );
+
+  const renderItem = ({ item, index }) => (
+    <ListItem
+      title={`${item.title}`}
+      accessoryRight={() => renderItemAccessory({ key: item.key })}
+    />
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
-        <View style={styles.welcomeContainer}>
-          <Image
-            source={
-              __DEV__
-                ? require("../assets/images/robot-dev.png")
-                : require("../assets/images/robot-prod.png")
-            }
-            style={styles.welcomeImage}
-          />
-        </View>
-
-        <View style={styles.getStartedContainer}>
-          <DevelopmentModeNotice />
-
-          <Text style={styles.getStartedText}>
-            Open up the code for this screen:
-          </Text>
-
-          <View
-            style={[
-              styles.codeHighlightContainer,
-              styles.homeScreenFilename,
-            ]}
-          >
-            <MonoText>screens/HomeScreen.js</MonoText>
-          </View>
-
-          <Text style={styles.getStartedText}>
-            Change any of the text, save the file, and your
-            app will automatically reload.
-          </Text>
-        </View>
-
-        <View style={styles.helpContainer}>
-          <TouchableOpacity
-            onPress={handleHelpPress}
-            style={styles.helpLink}
-          >
-            <Text style={styles.helpLinkText}>
-              Help, it didn’t automatically reload!
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <List
+          style={styles.container}
+          data={data}
+          ItemSeparatorComponent={Divider}
+          renderItem={renderItem}
+        />
       </ScrollView>
 
       <View style={styles.tabBarInfoContainer}>
         <View style={styles.button}>
-          <Button title="Logout" type="outline" />
+          <Button type="outline" onPress={() => setAuth(false)}>Logout</Button>
         </View>
       </View>
     </View>
   );
-}
+};
 
 AccountScreen.navigationOptions = {
   header: null,
@@ -80,26 +87,21 @@ AccountScreen.navigationOptions = {
 function DevelopmentModeNotice() {
   if (__DEV__) {
     const learnMoreButton = (
-      <Text
-        onPress={handleLearnMorePress}
-        style={styles.helpLinkText}
-      >
+      <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
         Learn more
       </Text>
     );
 
     return (
       <Text style={styles.developmentModeText}>
-        Development mode is enabled: your app will be slower
-        but you can use useful development tools.{" "}
-        {learnMoreButton}
+        Development mode is enabled: your app will be slower but you can use
+        useful development tools. {learnMoreButton}
       </Text>
     );
   } else {
     return (
       <Text style={styles.developmentModeText}>
-        You are not in development mode: your app will run
-        at full speed.
+        You are not in development mode: your app will run at full speed.
       </Text>
     );
   }
@@ -117,13 +119,15 @@ function handleHelpPress() {
   );
 }
 
+export default AccountScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
   },
   button: {
-    width: 300
+    width: 300,
   },
   developmentModeText: {
     marginBottom: 20,
